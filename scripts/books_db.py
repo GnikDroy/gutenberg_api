@@ -34,6 +34,7 @@ class BookDB:
         self.cursor.executescript('''
         CREATE TABLE IF NOT EXISTS Book (
             id INTEGER PRIMARY KEY,
+            format TEXT,
             title TEXT,
             description TEXT,
             license TEXT,
@@ -50,14 +51,15 @@ class BookDB:
             alias TEXT,
             birth_date TEXT,
             death_date TEXT,
-            webpage TEXT
+            webpage TEXT,
+            UNIQUE(name, alias, birth_date, death_date, webpage)
         );
 
         CREATE TABLE IF NOT EXISTS Agent (
             person INTEGER,
-            type INTEGER,
+            type TEXT,
             FOREIGN KEY (person) REFERENCES Person(id),
-            FOREIGN KEY (type) REFERENCES AgentType(id),
+            FOREIGN KEY (type) REFERENCES AgentType(name),
             PRIMARY KEY (person, type)
         );
         
@@ -82,135 +84,118 @@ class BookDB:
 
         CREATE TABLE IF NOT EXISTS Book_Subject (
             book INTEGER,
-            subject INTEGER,
+            subject TEXT,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (subject) REFERENCES Subject(id),
+            FOREIGN KEY (subject) REFERENCES Subject(name),
             PRIMARY KEY (book, subject)
         );
 
         CREATE TABLE IF NOT EXISTS Book_Agent (
             book INTEGER,
-            agent INTEGER,
+            agent_person INTEGER,
+            agent_type INTEGER,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (agent) REFERENCES Agent(id),
-            PRIMARY KEY (book, agent)
+            FOREIGN KEY (agent_person, agent_type) REFERENCES Agent(person, type),
+            PRIMARY KEY (book, agent_person, agent_type)
         );
 
-        CREATE TABLE IF NOT EXISTS Book_Format (
+        CREATE TABLE IF NOT EXISTS Book_Resource (
             book INTEGER,
-            format INTEGER,
+            resource TEXT,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (format) REFERENCES Resource(id),
-            PRIMARY KEY (book, format)
+            FOREIGN KEY (resource) REFERENCES Resource(url),
+            PRIMARY KEY (book, resource)
         );
 
-        CREATE TABLE IF NOT EXISTS Book_Cover (
-            book INTEGER,
-            cover INTEGER,
-            FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (cover) REFERENCES Resource(id),
-            PRIMARY KEY (book, cover)
-        );
 
         CREATE TABLE IF NOT EXISTS Book_Language (
             book INTEGER,
-            language INTEGER,
+            language TEXT,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (language) REFERENCES Language(id),
+            FOREIGN KEY (language) REFERENCES Language(name),
             PRIMARY KEY (book, language)
         );
 
         CREATE TABLE IF NOT EXISTS Book_Bookshelf (
             book INTEGER,
-            bookshelf INTEGER,
+            bookshelf TEXT,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (bookshelf) REFERENCES Bookshelf(id),
+            FOREIGN KEY (bookshelf) REFERENCES Bookshelf(name),
             PRIMARY KEY (book, bookshelf)
         );''')
 
     def insert_book(self, book):
         self.cursor.execute("""
-        INSERT OR REPLACE INTO Book (id, title, description, license, downloads) VALUES (?, ?, ?, ?, ?)
-        """, (book["id"], book["title"], book["description"], book["license"], int(book["downloads"])))
+        INSERT OR REPLACE INTO Book (id, format, title, description, license, downloads) VALUES (?, ?, ?, ?, ?, ?)
+        """, (book["id"], book["format"], book["title"], book["description"], book["license"], int(book["downloads"])))
         book_row_id = self.cursor.lastrowid
 
-        for cover in book['covers']:
+        for resource in book['resources']:
             self.cursor.execute("""
             INSERT OR REPLACE INTO Resource (url, size, modified, type) VALUES (?, ?, ?, ?)
-            """, (cover["url"], cover["size"], cover["modified"], cover["type"]))
-            cover_id = self.cursor.lastrowid
+            """, (resource["url"], resource["size"], resource["modified"], resource["type"]))
 
             self.cursor.execute("""
-            INSERT OR REPLACE INTO Book_Cover (book, cover) VALUES (?, ?)
-            """, (book_row_id, cover_id))
-
-        for format in book['formats']:
-            self.cursor.execute("""
-            INSERT OR REPLACE INTO Resource (url, size, modified, type) VALUES (?, ?, ?, ?)
-            """, (format["url"], format["size"], format["modified"], format["type"]))
-            format_id = self.cursor.lastrowid
-
-            self.cursor.execute("""
-            INSERT OR REPLACE INTO Book_Format (book, format) VALUES (?, ?)
-            """, (book_row_id, format_id))
+            INSERT OR REPLACE INTO Book_Resource (book, resource) VALUES (?, ?)
+            """, (book_row_id, resource["url"]))
 
         for agent_type, agents in book["agents"].items():
             self.cursor.execute("""
             INSERT OR REPLACE INTO AgentType (name) VALUES (?)
             """, (agent_type,))
-            agent_type_id = self.cursor.lastrowid
 
             for agent in agents:
                 self.cursor.execute("""
-                INSERT OR REPLACE INTO Person (name, alias, birth_date, death_date, webpage) VALUES (?, ?, ?, ?, ?)
+                INSERT OR IGNORE INTO Person (name, alias, birth_date, death_date, webpage) VALUES (?, ?, ?, ?, ?)
                 """, (agent["name"], agent["alias"], agent["birth_date"], agent["death_date"], agent["webpage"]))
-                person_id = self.cursor.lastrowid
+                self.cursor.execute("""
+                SELECT id from Person
+                WHERE 
+                name=? AND alias=? AND birth_date=? AND death_date=? AND webpage=?
+                """, (agent["name"], agent["alias"], agent["birth_date"], agent["death_date"], agent["webpage"]))
+                person_id = self.cursor.fetchone()[0]
 
                 self.cursor.execute("""
                 INSERT OR REPLACE INTO Agent (person, type) VALUES (?, ?)
-                """, (person_id, agent_type_id))
-                agent_id = self.cursor.lastrowid
+                """, (person_id, agent_type))
 
                 self.cursor.execute("""
-                INSERT OR REPLACE INTO Book_Agent (book, agent) VALUES (?, ?)
-                """, (book_row_id, agent_id))
+                INSERT OR REPLACE INTO Book_Agent (book, agent_person, agent_type) VALUES (?, ?, ?)
+                """, (book_row_id, person_id, agent_type))
 
         for bookshelf in book["bookshelves"]:
             self.cursor.execute("""
             INSERT OR REPLACE INTO Bookshelf (name) VALUES (?)
             """, (bookshelf,))
-            bookshelf_id = self.cursor.lastrowid
 
             self.cursor.execute("""
             INSERT OR REPLACE INTO Book_Bookshelf (book, bookshelf) VALUES (?, ?)
-            """, (book_row_id, bookshelf_id))
+            """, (book_row_id, bookshelf))
 
         for subject in book["subjects"]:
             self.cursor.execute("""
             INSERT OR REPLACE INTO Subject (name) VALUES (?)
             """, (subject,))
-            subject_id = self.cursor.lastrowid
 
             self.cursor.execute("""
             INSERT OR REPLACE INTO Book_Subject (book, subject) VALUES (?, ?)
-            """, (book_row_id, subject_id))
+            """, (book_row_id, subject))
 
         for lang in book["languages"]:
             self.cursor.execute("""
             INSERT OR REPLACE INTO Language (name) VALUES (?)
             """, (lang,))
-            language_id = self.cursor.lastrowid
 
             self.cursor.execute("""
             INSERT OR REPLACE INTO Book_Language (book, language) VALUES (?, ?)
-            """, (book_row_id, language_id))
+            """, (book_row_id, lang))
 
 
 def main(args):
     with BookDB(args.output) as book_db:
         book_db.create_tables()
         for path, _, filenames in os.walk(args.input_rdf):
-            for filename in filenames:
+            for _ in filenames:
                 id = int(os.path.basename(path))
                 book = {}
 

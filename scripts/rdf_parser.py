@@ -30,12 +30,22 @@ class Book:
     def parse_book(graph, id):
         book = {}
         book_id = Book.BASE[f"ebooks/{id}"]
+
         book["id"] = id
+
+        book["format"] = str(graph.value(graph.value(
+            book_id, Book.DC_TERMS["type"]), Book.RDF["value"]))
+
         book["title"] = str(graph.value(book_id, Book.DC_TERMS["title"]))
+
         book["publishers"] = list(
             map(str, graph.objects(book_id, Book.DC_TERMS["publisher"])))
+
         book["description"] = str(graph.value(
             book_id, Book.DC_TERMS["description"]))
+
+        book["downloads"] = str(graph.value(
+            book_id, Book.PG_TERMS["downloads"]))
 
         book["license"] = str(graph.value(book_id, Book.DC_TERMS["license"]))
 
@@ -44,16 +54,13 @@ class Book:
             book["subjects"].append(
                 str(graph.value(subject_hash, Book.RDF["value"])))
 
-        book["formats"] = []
-        book["covers"] = []
+        book["resources"] = []
         for url in graph.objects(book_id, Book.DC_TERMS["hasFormat"]):
             size = str(graph.value(url, Book.DC_TERMS["extent"]))
             last_modified = str(graph.value(url, Book.DC_TERMS["modified"]))
             file_type = str(graph.value(graph.value(
                 url, Book.DC_TERMS["format"]), Book.RDF["value"]))
-
-            key = "covers" if file_type.startswith("image/") else "formats"
-            book[key].append({
+            book["resources"].append({
                 "url": str(url),
                 "size": size,
                 "modified": last_modified,
@@ -70,10 +77,13 @@ class Book:
             book["bookshelves"].append(
                 str(graph.value(bookshelf_hash, Book.RDF["value"])))
 
-        book["downloads"] = str(graph.value(
-            book_id, Book.PG_TERMS["downloads"]))
-
         book["agents"] = {}
+
+        authors = []
+        for author in graph.objects(book_id, Book.DC_TERMS["creator"]):
+            authors.append(Book.parse_agent(graph, author))
+        book["agents"]["Author"] = authors
+
         for predicate, agent in graph.predicate_objects(book_id):
             assert isinstance(predicate, rdflib.URIRef)
             type_names = {
@@ -97,11 +107,6 @@ class Book:
 
                 book["agents"].setdefault(str(name), []).append(
                     Book.parse_agent(graph, agent))
-
-        authors = []
-        for author in graph.objects(book_id, Book.DC_TERMS["creator"]):
-            authors.append(Book.parse_agent(graph, author))
-        book["agents"]["Author"] = authors
 
         return book
 
