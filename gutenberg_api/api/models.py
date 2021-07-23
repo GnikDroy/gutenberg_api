@@ -4,13 +4,14 @@ from django.db import models
 
 MAX_UNKNOWN_LENGTH = 1000
 
-
+# TODO: null=True can (and ideally should) be avoided in Char and URL fields.
+# It is not of much concern for now.
 class Person(models.Model):
-    name = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
-    alias = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
-    birth_date = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
-    death_date = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
-    webpage = models.URLField()
+    name = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    alias = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    birth_date = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    death_date = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    webpage = models.URLField(null=True)
 
     class Meta:
         ordering = ('-pk',)
@@ -30,8 +31,8 @@ class AgentType(models.Model):
 
 
 class Agent(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    type = models.ForeignKey(AgentType, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, null=True)
+    type = models.ForeignKey(AgentType, on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ('-pk',)
@@ -75,9 +76,9 @@ class Subject(models.Model):
 
 class Resource(models.Model):
     uri = models.URLField(primary_key=True)
-    size = models.IntegerField()
-    modified = models.DateTimeField()
-    type = models.CharField(max_length=500)
+    size = models.IntegerField(null=True)
+    modified = models.DateTimeField(null=True)
+    type = models.CharField(max_length=500, null=True)
 
     class Meta:
         ordering = ('-pk',)
@@ -88,11 +89,11 @@ class Resource(models.Model):
 
 class Book(models.Model):
     id = models.IntegerField(primary_key=True)
-    format = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
-    title = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
-    description = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
-    license = models.URLField()
-    downloads = models.IntegerField()
+    format = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    title = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    description = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    license = models.URLField(null=True)
+    downloads = models.IntegerField(null=True)
 
     subjects = models.ManyToManyField(Subject)
     bookshelves = models.ManyToManyField(Bookshelf)

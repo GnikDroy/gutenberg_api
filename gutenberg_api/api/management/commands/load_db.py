@@ -82,7 +82,7 @@ def import_catalogue(logger, fixture_file_path: str, clear: bool) -> None:
     people_objs = []
     for id, name, alias, birth_date, death_date, webpage in people:
         people_objs.append(models.Person(
-            id=id, name=name, alias=alias, birth_date=birth_date, death_date=death_date, webpage=webpage))
+            pk=id, name=name, alias=alias, birth_date=birth_date, death_date=death_date, webpage=webpage))
     models.Person.objects.bulk_create(people_objs)
     people_objs.clear()
 
@@ -99,13 +99,12 @@ def import_catalogue(logger, fixture_file_path: str, clear: bool) -> None:
 
     logger.info("Populating Agent")
     cur.execute("""
-    SELECT person, type FROM Agent;
+    SELECT id, person, type FROM Agent;
     """)
     agents = cur.fetchall()
     agent_objs = []
-    for person_id, type_id in agents:
-        agent_objs.append(models.Agent(
-            person_id=int(person_id), type_id=type_id))
+    for agent_id, person_id, type_id in agents:
+        agent_objs.append(models.Agent(pk=agent_id, person_id=person_id, type_id=type_id))
     models.Agent.objects.bulk_create(agent_objs)
     agent_objs.clear()
 
@@ -142,7 +141,7 @@ def import_catalogue(logger, fixture_file_path: str, clear: bool) -> None:
         modified = datetime.strptime(
             modified_str, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=pytz.UTC)
         resource_objs.append(models.Resource(
-            url=url, size=size, modified=modified, type=type))
+            uri=url, size=size, modified=modified, type=type))
     models.Resource.objects.bulk_create(resource_objs)
     resource_objs.clear()
 
@@ -210,16 +209,13 @@ def import_catalogue(logger, fixture_file_path: str, clear: bool) -> None:
 
     logger.info("Populating Book Agent M2M relation")
     cur.execute("""
-    SELECT book, agent_person, agent_type FROM Book_Agent;
+    SELECT book, agent FROM Book_Agent;
     """)
     book_agent = cur.fetchall()
     AgentThrough = models.Book.agents.through
     agents_through = []
-    for book_id, agent_person_id, agent_type_id in book_agent:
-        agent = models.Agent.objects.get(
-            person_id=agent_person_id, type_id=agent_type_id)
-        agents_through.append(AgentThrough(
-            book_id=book_id, agent_id=agent.pk))
+    for book_id, agent_id in book_agent:
+        agents_through.append(AgentThrough(book_id=book_id, agent_id=agent_id))
     AgentThrough.objects.bulk_create(agents_through)
     agents_through.clear()
 
