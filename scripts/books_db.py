@@ -56,11 +56,12 @@ class BookDB:
         );
 
         CREATE TABLE IF NOT EXISTS Agent (
+            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             person INTEGER,
             type TEXT,
             FOREIGN KEY (person) REFERENCES Person(id),
             FOREIGN KEY (type) REFERENCES AgentType(name),
-            PRIMARY KEY (person, type)
+            UNIQUE(person, type)
         );
         
         CREATE TABLE IF NOT EXISTS Bookshelf (
@@ -89,14 +90,15 @@ class BookDB:
             FOREIGN KEY (subject) REFERENCES Subject(name),
             PRIMARY KEY (book, subject)
         );
+''')
 
+        self.cursor.executescript('''
         CREATE TABLE IF NOT EXISTS Book_Agent (
             book INTEGER,
-            agent_person INTEGER,
-            agent_type INTEGER,
+            agent INTEGER,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (agent_person, agent_type) REFERENCES Agent(person, type),
-            PRIMARY KEY (book, agent_person, agent_type)
+            FOREIGN KEY (agent) REFERENCES Agent(id),
+            PRIMARY KEY (book, agent)
         );
 
         CREATE TABLE IF NOT EXISTS Book_Resource (
@@ -151,17 +153,23 @@ class BookDB:
                 self.cursor.execute("""
                 SELECT id from Person
                 WHERE 
-                name=? AND alias=? AND birth_date=? AND death_date=? AND webpage=?
+                name is ? AND alias is ? AND birth_date is ? AND death_date is ? AND webpage is ?
                 """, (agent["name"], agent["alias"], agent["birth_date"], agent["death_date"], agent["webpage"]))
                 person_id = self.cursor.fetchone()[0]
 
                 self.cursor.execute("""
-                INSERT OR REPLACE INTO Agent (person, type) VALUES (?, ?)
+                INSERT OR IGNORE INTO Agent (person, type) VALUES (?, ?)
                 """, (person_id, agent_type))
+                self.cursor.execute("""
+                SELECT id from Agent
+                WHERE 
+                person is ? AND type is ?
+                """, (person_id, agent_type))
+                agent_id = self.cursor.fetchone()[0]
 
                 self.cursor.execute("""
-                INSERT OR REPLACE INTO Book_Agent (book, agent_person, agent_type) VALUES (?, ?, ?)
-                """, (book_row_id, person_id, agent_type))
+                INSERT OR REPLACE INTO Book_Agent (book, agent) VALUES (?, ?)
+                """, (book_row_id, agent_id))
 
         for bookshelf in book["bookshelves"]:
             self.cursor.execute("""

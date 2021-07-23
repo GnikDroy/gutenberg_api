@@ -5,6 +5,8 @@ import os
 import json
 import argparse
 
+def xstr(s):
+    return None if s is None else str(s)
 
 class Book:
     BASE = rdflib.Namespace("http://www.gutenberg.org/")
@@ -16,14 +18,15 @@ class Book:
     DCAM = rdflib.Namespace("http://purl.org/dc/dcam/")
     MACREL = rdflib.Namespace("http://id.loc.gov/vocabulary/relators/")
 
+
     @staticmethod
     def parse_agent(graph, agent):
         return {
-            "name": str(graph.value(agent, Book.PG_TERMS["name"])),
-            "alias": str(graph.value(agent, Book.PG_TERMS["alias"])),
-            "birth_date": str(graph.value(agent, Book.PG_TERMS["birthdate"])),
-            "death_date": str(graph.value(agent, Book.PG_TERMS["deathdate"])),
-            "webpage": str(graph.value(agent, Book.PG_TERMS["webpage"]))
+            "name": xstr(graph.value(agent, Book.PG_TERMS["name"])),
+            "alias": xstr(graph.value(agent, Book.PG_TERMS["alias"])),
+            "birth_date": xstr(graph.value(agent, Book.PG_TERMS["birthdate"])),
+            "death_date": xstr(graph.value(agent, Book.PG_TERMS["deathdate"])),
+            "webpage": xstr(graph.value(agent, Book.PG_TERMS["webpage"]))
         }
 
     @staticmethod
@@ -33,35 +36,35 @@ class Book:
 
         book["id"] = id
 
-        book["format"] = str(graph.value(graph.value(
+        book["format"] = xstr(graph.value(graph.value(
             book_id, Book.DC_TERMS["type"]), Book.RDF["value"]))
 
-        book["title"] = str(graph.value(book_id, Book.DC_TERMS["title"]))
+        book["title"] = xstr(graph.value(book_id, Book.DC_TERMS["title"]))
 
         book["publishers"] = list(
-            map(str, graph.objects(book_id, Book.DC_TERMS["publisher"])))
+            map(xstr, graph.objects(book_id, Book.DC_TERMS["publisher"])))
 
-        book["description"] = str(graph.value(
+        book["description"] = xstr(graph.value(
             book_id, Book.DC_TERMS["description"]))
 
-        book["downloads"] = str(graph.value(
+        book["downloads"] = xstr(graph.value(
             book_id, Book.PG_TERMS["downloads"]))
 
-        book["license"] = str(graph.value(book_id, Book.DC_TERMS["license"]))
+        book["license"] = xstr(graph.value(book_id, Book.DC_TERMS["license"]))
 
         book["subjects"] = []
         for subject_hash in graph.objects(book_id, Book.DC_TERMS["subject"]):
             book["subjects"].append(
-                str(graph.value(subject_hash, Book.RDF["value"])))
+                xstr(graph.value(subject_hash, Book.RDF["value"])))
 
         book["resources"] = []
         for url in graph.objects(book_id, Book.DC_TERMS["hasFormat"]):
-            size = str(graph.value(url, Book.DC_TERMS["extent"]))
-            last_modified = str(graph.value(url, Book.DC_TERMS["modified"]))
-            file_type = str(graph.value(graph.value(
+            size = xstr(graph.value(url, Book.DC_TERMS["extent"]))
+            last_modified = xstr(graph.value(url, Book.DC_TERMS["modified"]))
+            file_type = xstr(graph.value(graph.value(
                 url, Book.DC_TERMS["format"]), Book.RDF["value"]))
             book["resources"].append({
-                "url": str(url),
+                "url": xstr(url),
                 "size": size,
                 "modified": last_modified,
                 "type": file_type,
@@ -70,12 +73,12 @@ class Book:
         book["languages"] = []
         for language_hash in graph.objects(book_id, Book.DC_TERMS["language"]):
             book["languages"].append(
-                str(graph.value(language_hash, Book.RDF["value"])))
+                xstr(graph.value(language_hash, Book.RDF["value"])))
 
         book["bookshelves"] = []
         for bookshelf_hash in graph.objects(book_id, Book.PG_TERMS["bookshelf"]):
             book["bookshelves"].append(
-                str(graph.value(bookshelf_hash, Book.RDF["value"])))
+                xstr(graph.value(bookshelf_hash, Book.RDF["value"])))
 
         book["agents"] = {}
 
@@ -105,7 +108,7 @@ class Book:
                     if predicate == Book.MACREL[id]:
                         name = value
 
-                book["agents"].setdefault(str(name), []).append(
+                book["agents"].setdefault(xstr(name), []).append(
                     Book.parse_agent(graph, agent))
 
         return book
