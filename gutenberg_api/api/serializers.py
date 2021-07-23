@@ -5,7 +5,7 @@ from . import models
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Person
-        fields = '__all__'
+        fields = ('name', 'alias', 'birth_date', 'death_date', 'webpage')
 
 
 class AgentTypeSerializer(serializers.ModelSerializer):
@@ -28,7 +28,8 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Book
-        fields = '__all__'
+        fields = ('id', 'format', 'title', 'description', 'downloads', 'license', 'subjects',
+                  'bookshelves', 'languages', 'agents', 'resources')
 
 
 class BookshelfSerializer(serializers.ModelSerializer):
@@ -40,16 +41,16 @@ class BookshelfSerializer(serializers.ModelSerializer):
 class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Language
-        fields = '__all__'
+        fields = ('name',)
 
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Subject
-        fields = '__all__'
+        fields = ('name',)
 
 
 class ResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Resource
-        fields = '__all__'
+        fields = ('uri', 'type', 'size', 'modified')

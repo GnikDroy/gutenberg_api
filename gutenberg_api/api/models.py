@@ -92,8 +92,8 @@ class Book(models.Model):
     format = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
     title = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
     description = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
-    license = models.URLField(null=True)
     downloads = models.IntegerField(null=True)
+    license = models.URLField(null=True)
 
     subjects = models.ManyToManyField(Subject)
     bookshelves = models.ManyToManyField(Bookshelf)
