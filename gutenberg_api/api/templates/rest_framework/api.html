@@ -1,0 +1,12 @@
+{% extends "rest_framework/base.html" %}
+
+
+{% block title %} Browseable API - Project Gutenberg {% endblock %}
+
+    {% block branding %}
+    <span>
+        <a class='navbar-brand' rel="nofollow" href="{% url 'main:index' %}">
+            Project Gutenberg API <span class="version">0.0.1a</span>
+         </a>
+    </span>
+    {% endblock %}

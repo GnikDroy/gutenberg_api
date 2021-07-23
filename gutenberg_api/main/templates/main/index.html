@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="Description" content="A JSON RESTful api for Project Gutenberg catalogue." />
+    <meta name="Keywords" content="Project Gutenberg API RESTful Django" />
+    <meta name="Author" content="Gnik Droy" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,shrink-to-fit=no" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+
+    <title>Project Gutenberg API</title>
+</head>
+
+<body class="bg-dark">
+
+    <main class="container-fluid text-white text-center">
+        <h1 class="display-1 mx-auto py-5 mt-3"><i class="fas fa-book-open"></i> Project Gutenberg API</h1>
+        <p class="mx-auto lead"> A RESTful API to access details of the entire catalogue. </p>
+
+        <div class="container">
+            <div class="row py-5 g-5">
+                <div class="col-md-4">
+                    <div class="card bg-danger">
+                        <div class="card-body">
+                            <h5 class="display-4 mb-5">Books</h5>
+                            <h1> {{ books }} </h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <h5 class="display-4 mb-5">Creators</h5>
+                            <h1> {{ creators }} </h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-primary">
+                        <div class="card-body">
+                            <h5 class="display-4 mb-5">Bookshelves</h5>
+                            <h1> {{ bookshelves}} </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row py-5 g-5">
+                <div class="col-md-4">
+                    <div class="card" style="background-color:#ad6cd5;">
+                        <div class="card-body">
+                            <h5 class="display-4 mb-5">Subjects</h5>
+                            <h1> {{ subjects }} </h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-secondary">
+                        <div class="card-body">
+                            <h5 class="display-4 mb-5">Resources</h5>
+                            <h1> {{ resources }} </h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card" style="background-color:#8d8847;">
+                        <div class="card-body">
+                            <h5 class="display-4 mb-5">Languages</h5>
+                            <h1> {{ languages }} </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mx-auto my-4">Play with the API</h3>
+        <p class="mx-auto lead">
+            Use the available browseable API to quickly prototype and test your application.
+        </p>
+        <div class="p-5">
+            <a href="{% url 'api:index' %}" class="btn btn-lg btn-primary"><i class="fas fa-book"></i> &nbsp; Browseable API</a>
+        </div>
+
+    </main>
+
+</body>
+
+</html>

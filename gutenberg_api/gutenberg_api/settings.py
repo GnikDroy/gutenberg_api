@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'api.apps.ApiConfig',
+    'main.apps.MainConfig'
 ]
 
 MIDDLEWARE = [
@@ -57,7 +58,7 @@ ROOT_URLCONF = 'gutenberg_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'api' / 'templates', BASE_DIR / 'main' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
