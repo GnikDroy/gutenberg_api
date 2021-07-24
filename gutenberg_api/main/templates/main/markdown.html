@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+{% load markdown %}
+{% load static %}
+
+{% block head_extra %}
+    <link rel="stylesheet" href="{% static 'main/code_highlight.css' %}" />
+    <link rel="stylesheet" href="{% static 'main/markdown_styles.css' %}" />
+
+    <script src="{% static 'main/markdown_scripts.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5 pt-5 markdown-container">
+        {{ markdown_html | markdown | safe }}
+    </div>
+{% endblock %}

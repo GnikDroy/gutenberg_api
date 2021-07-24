@@ -89,7 +89,7 @@ class Resource(models.Model):
 
 class Book(models.Model):
     id = models.IntegerField(primary_key=True)
-    format = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
+    type = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
     title = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
     description = models.CharField(max_length=MAX_UNKNOWN_LENGTH, null=True)
     downloads = models.IntegerField(null=True)

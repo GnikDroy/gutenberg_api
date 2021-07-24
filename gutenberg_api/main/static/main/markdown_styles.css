@@ -1,0 +1,13 @@
+pre {
+    padding: 20px;
+}
+
+a,
+a:visited {
+    color: rgb(82, 161, 226);
+}
+
+a:hover,
+a:focus {
+    color: rgb(102, 186, 255);
+}

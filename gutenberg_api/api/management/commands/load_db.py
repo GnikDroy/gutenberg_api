@@ -69,7 +69,7 @@ def import_catalogue(logger, fixture_file_path: str, clear: bool) -> None:
     books = cur.fetchall()
     book_objs = []
     for id, format, title, description, license, downloads in books:
-        book_objs.append(models.Book(id=id, format=format, title=title,
+        book_objs.append(models.Book(id=id, type=format, title=title,
                          description=description, license=license, downloads=downloads))
     models.Book.objects.bulk_create(book_objs)
     book_objs.clear()

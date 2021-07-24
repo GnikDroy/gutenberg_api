@@ -23,15 +23,6 @@ class AgentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class BookSerializer(serializers.ModelSerializer):
-    agents = AgentSerializer(many=True)
-
-    class Meta:
-        model = models.Book
-        fields = ('id', 'format', 'title', 'description', 'downloads', 'license', 'subjects',
-                  'bookshelves', 'languages', 'agents', 'resources')
-
-
 class BookshelfSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Bookshelf
@@ -54,3 +45,10 @@ class ResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Resource
         fields = ('uri', 'type', 'size', 'modified')
+
+class BookSerializer(serializers.ModelSerializer):
+    agents = AgentSerializer(many=True)
+    class Meta:
+        model = models.Book
+        fields = ('id', 'type', 'title', 'description', 'downloads', 'license', 'subjects',
+                  'bookshelves', 'languages', 'agents', 'resources')

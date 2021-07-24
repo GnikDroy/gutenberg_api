@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="Description" content="A JSON RESTful api for Project Gutenberg catalogue." />
+    <meta name="Keywords" content="Project Gutenberg API RESTful Django" />
+    <meta name="Author" content="Gnik Droy" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,shrink-to-fit=no" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+    <script src="{% static 'main/scripts.js' %}"></script>
+    {% block head_extra %} {% endblock %}
+    <title>{% block title %}Project Gutenberg API{% endblock %}</title>
+
+</head>
+
+<body>
+
+    <header>
+        <div class="form-check form-switch d-block float-end py-2 px-5">
+            <input class="form-check-input" type="checkbox" id="light_dark_checkbox" checked>
+            <label class="form-check-label" for="light_dark_switch"> Light / Dark </label>
+        </div>
+
+        <a class="nav-link" href="{% url 'main:index' %}" style="color: inherit;">
+            <div class="container-fluid text-center">
+                <h1 class="display-1 mx-auto py-5"><i class="fas fa-book-open"></i> Project Gutenberg API</h1>
+                <p class="mx-auto lead"> A RESTful API to access details of the entire catalogue. </p>
+            </div>
+        </a>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container-fluid text-center mt-5 p-2" style="border-top: 1px solid rgb(121, 121, 121);">
+            <p class="font-small m-0">
+                <span style="color: #a2a2a2;">© Copyright {% now "Y" %} - </span> No affilation with Project Gutenberg™
+            </p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

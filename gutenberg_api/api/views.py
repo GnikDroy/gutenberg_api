@@ -21,7 +21,7 @@ class BookViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.SearchFilter,
                        DjangoFilterBackend, filters.OrderingFilter)
     search_fields = ('title', 'agents__person__name')
-    filterset_fields = ('format', 'languages', 'bookshelves')
+    filterset_fields = ('type', 'languages', 'bookshelves')
     ordering_fields = ('downloads', 'title')
 
 
