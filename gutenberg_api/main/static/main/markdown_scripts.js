@@ -17,7 +17,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const tocs = document.querySelectorAll(".markdown-container .toc");
     for (let i = 0; i < tocs.length; i++) {
-        tocs[i].classList.add("my-5");
+        tocs[i].classList.add("my-5", "fs-5");
+    };
+
+    const ul = document.querySelectorAll(".markdown-container .toc>ul");
+    for (let i = 0; i < ul.length; i++) {
+        ul[i].classList.add("pt-5");
     };
 
 });

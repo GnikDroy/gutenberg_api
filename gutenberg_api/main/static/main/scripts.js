@@ -18,7 +18,7 @@ window.addEventListener("load", function() {
     change_theme(this.localStorage.getItem("theme") || "dark");
 
     // Change state of button to reflect theme state.
-    // This is checked if dark theme is used.
+    // Checkbox is checked if dark theme is used.
     const light_dark_checkbox = document.getElementById('light_dark_checkbox');
     light_dark_checkbox.checked = this.localStorage.getItem('theme') == "dark";
 

@@ -65,11 +65,13 @@ class BookDB:
         );
         
         CREATE TABLE IF NOT EXISTS Bookshelf (
-            name TEXT PRIMARY KEY
+            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            name TEXT UNIQUE
         );
 
         CREATE TABLE IF NOT EXISTS Subject (
-            name TEXT PRIMARY KEY
+            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            name TEXT UNIQUE
         );
 
         CREATE TABLE IF NOT EXISTS Language (
@@ -77,22 +79,23 @@ class BookDB:
         );
 
         CREATE TABLE IF NOT EXISTS Resource (
-            url TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            url TEXT UNIQUE,
             size INTEGER,
             modified TEXT,
             type TEXT
         );
-
-        CREATE TABLE IF NOT EXISTS Book_Subject (
-            book INTEGER,
-            subject TEXT,
-            FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (subject) REFERENCES Subject(name),
-            PRIMARY KEY (book, subject)
-        );
-''')
+        ''')
 
         self.cursor.executescript('''
+        CREATE TABLE IF NOT EXISTS Book_Subject (
+            book INTEGER,
+            subject INTEGER,
+            FOREIGN KEY (book) REFERENCES Book(id),
+            FOREIGN KEY (subject) REFERENCES Subject(id),
+            PRIMARY KEY (book, subject)
+        );
+
         CREATE TABLE IF NOT EXISTS Book_Agent (
             book INTEGER,
             agent INTEGER,
@@ -103,9 +106,9 @@ class BookDB:
 
         CREATE TABLE IF NOT EXISTS Book_Resource (
             book INTEGER,
-            resource TEXT,
+            resource INTEGER,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (resource) REFERENCES Resource(url),
+            FOREIGN KEY (resource) REFERENCES Resource(id),
             PRIMARY KEY (book, resource)
         );
 
@@ -120,9 +123,9 @@ class BookDB:
 
         CREATE TABLE IF NOT EXISTS Book_Bookshelf (
             book INTEGER,
-            bookshelf TEXT,
+            bookshelf INTEGER,
             FOREIGN KEY (book) REFERENCES Book(id),
-            FOREIGN KEY (bookshelf) REFERENCES Bookshelf(name),
+            FOREIGN KEY (bookshelf) REFERENCES Bookshelf(id),
             PRIMARY KEY (book, bookshelf)
         );''')
 
@@ -134,12 +137,18 @@ class BookDB:
 
         for resource in book['resources']:
             self.cursor.execute("""
-            INSERT OR REPLACE INTO Resource (url, size, modified, type) VALUES (?, ?, ?, ?)
+            INSERT OR IGNORE INTO Resource (url, size, modified, type) VALUES (?, ?, ?, ?)
             """, (resource["url"], resource["size"], resource["modified"], resource["type"]))
+            self.cursor.execute("""
+            SELECT id FROM Resource 
+            WHERE
+            url is ? 
+            """, (resource["url"],))
+            resource_id = self.cursor.fetchone()[0]
 
             self.cursor.execute("""
             INSERT OR REPLACE INTO Book_Resource (book, resource) VALUES (?, ?)
-            """, (book_row_id, resource["url"]))
+            """, (book_row_id, resource_id))
 
         for agent_type, agents in book["agents"].items():
             self.cursor.execute("""
@@ -173,21 +182,31 @@ class BookDB:
 
         for bookshelf in book["bookshelves"]:
             self.cursor.execute("""
-            INSERT OR REPLACE INTO Bookshelf (name) VALUES (?)
+            INSERT OR IGNORE INTO Bookshelf (name) VALUES (?)
             """, (bookshelf,))
+            self.cursor.execute("""
+            SELECT id FROM Bookshelf 
+            where name is ?
+            """, (bookshelf,))
+            bookshelf_id = self.cursor.fetchone()[0]
 
             self.cursor.execute("""
             INSERT OR REPLACE INTO Book_Bookshelf (book, bookshelf) VALUES (?, ?)
-            """, (book_row_id, bookshelf))
+            """, (book_row_id, bookshelf_id))
 
         for subject in book["subjects"]:
             self.cursor.execute("""
-            INSERT OR REPLACE INTO Subject (name) VALUES (?)
+            INSERT OR IGNORE INTO Subject (name) VALUES (?)
             """, (subject,))
+            self.cursor.execute("""
+            SELECT id FROM Subject
+            WHERE name is ?
+            """, (subject,))
+            subject_id = self.cursor.fetchone()[0]
 
             self.cursor.execute("""
             INSERT OR REPLACE INTO Book_Subject (book, subject) VALUES (?, ?)
-            """, (book_row_id, subject))
+            """, (book_row_id, subject_id))
 
         for lang in book["languages"]:
             self.cursor.execute("""

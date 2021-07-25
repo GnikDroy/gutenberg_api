@@ -6,14 +6,17 @@ from django.conf import settings
 from api import models
 import os
 
-# Create your views here.
 
 MARKDOWN_FILES = {}
 
 
 def lazy_load_markdown(path, toc=True, reload=True):
     """
-    Use this to keep markdown files in memory
+    Use this to keep markdown files in memory.
+
+    :param path: The path to the Markdown file from BASE_DIR
+    :param toc: Generation of Table of Contents
+    :param reload: Whether to reload the markdown file on every call. Useful for debug.
     """
     if reload or not path in MARKDOWN_FILES:
         with open(path) as f:
@@ -22,6 +25,9 @@ def lazy_load_markdown(path, toc=True, reload=True):
 
 
 def index(request):
+    """
+    The Homepage
+    """
     template = loader.get_template('main/index.html')
     context = {
         "books": models.Book.objects.all().count(),
@@ -35,6 +41,9 @@ def index(request):
 
 
 def docs(request):
+    """
+    The Documentation Page
+    """
     template = loader.get_template('main/markdown.html')
     markdown_path = os.path.join(settings.BASE_DIR, "DOCS.md")
     lazy_load_markdown(markdown_path)

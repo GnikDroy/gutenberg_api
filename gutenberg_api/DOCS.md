@@ -3,19 +3,19 @@
 
 ## Installation and Setup
 
-An instance should be running [here][Site]. Please host your own if you are planning on using the API extensively.
+An instance should be running [here][Site]. Please host your own instance if you are planning on using the API extensively.
 
-To host it on your own, firstly **clone the repository.**
+To host your own, firstly **clone the repository.**
 
 ```sh
 git clone <repository>
 ```
 
-You will need to generate the SQLite Database from the Project Gutenberg catalogue. The catalogue is updated daily.
+You will need to generate the SQLite Database from the Project Gutenberg catalogue. The catalogue is updated daily and is not present in the repository.
 
-**Get a copy of the Project Gutenberg catalog** information [here](https://www.gutenberg.org/cache/epub/feeds/). We use the [format](https://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.zip) where each book gets its own RDF file. The current implementation of RDF in python has poor performance so parsing the single file catalogue is not feasible.
+**Get a copy of the Project Gutenberg catalog** [here](https://www.gutenberg.org/cache/epub/feeds/). We use the [format](https://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.zip) where each book gets its own RDF file. The current implementation of RDF in python has poor performance so parsing the single file catalogue is not feasible.
 
-Once you have the catalogue, you can use `scripts/rdf_parser.py` or `scripts/books_db.py` to **generate the JSON catalogue or an SQLite database**. Since RDFLib has poor performance, it is often worthwhile to convert the RDF files to JSON with `rdf_parser.py`, and use `books_db.py` to finally generate the SQLite database. If you do not need to do this regularly, `books_db.py` will also directly create a SQLite database from the RDF files.
+Once you have the catalogue, you can use `scripts/rdf_parser.py` or `scripts/books_db.py` to **generate the JSON catalogue or an SQLite database**. Since RDFLib has poor performance, it is often worthwhile to convert the RDF files to JSON with `rdf_parser.py`, and use `books_db.py` to finally generate the SQLite database. If you do not need to do this regularly, `books_db.py` will also directly create an SQLite database from the RDF files.
 
 ```sh
 pip install -r scripts/requirements.txt
@@ -23,13 +23,13 @@ pip install -r scripts/requirements.txt
 [python] books_db.py -h
 ```
 
- You should be able to generate a SQLite database after reading the help messages. Additionally, you can ability to generate JSON files if need be.
+ You should be able to generate a SQLite database after reading the help messages. Additionally, you have the ability to generate JSON files if need be.
 
 *This will take some time!* Get yourself a cup of coffee.
 
 After generating a SQLite database, you will need to **load this into Django**. There is a custom `load_db` command inside `api` app for this.
 
-Next, let's setup the django project. From your project root:
+Before that, let's setup the django project. From your project root:
 
 ```sh
 pip install -r requirements.txt
@@ -37,10 +37,14 @@ cd gutenberg_api
 
 python3 manage.py makemigrations
 python3 manage.py migrate
-python3 manage.py createsuperuser # Create a super user account. This might be unnecessary for your needs.
+
+python3 manage.py makemigrations api
+python3 manage.py migrate
+
+# python3 manage.py createsuperuser # Create a super user account. This might be unnecessary for your needs.
 ```
 
-Finally, let's load the generated SQLite DB 
+Finally, let's load the generated SQLite DB
 
 ```sh
 python3 manage.py load_db [--clear] path/to/generated_sqlite.db
@@ -66,7 +70,7 @@ _______________
 
 The generated SQLite database can be used differently.  You should be able to see the tables from some sort of a DB management software. Please refer `scripts/books_db.py` for more details on the format.
 
-#### Mirroring the site.
+#### Mirroring the site
 
 If you are aiming to make a lot of requests to the `Resource` obtained from the API, it might be worthwhile to [mirror Project Gutenberg.](https://www.gutenberg.org/help/mirroring.html). You would then need to update the Resource URIs generated from the RDF files to point to your domain. Refer to `books_db.py` and `rdf_parser.py`. A small SQLite command will also do the job.
 
@@ -80,16 +84,16 @@ It is highly recommended to use the [Browseable API][API] to interact with the A
 
 The following endpoints are currently supported. 
 
-| Endpoint           | Details                                                 |
-| ------------------ | ------------------------------------------------------- |
-| /api/book          | Details of a Book                                       |
-| /api/bookshelf     | Bookshelf information                                   |
-| /api/agent_type    | The type of agent. (Artist, Illustrator, etc)           |
-| /api/person        | Details of a person (name, birth date, webpage, etc)    |
-| /api/resource      | Details of a resource                                   |
-| /api/agent         | Agent = Person + Agent Type                             |
-| /api/language      | Language of the book                                    |
-| /api/subject       | The list of genres/subjects.                            |
+|    Endpoint     | Details                                              |
+|:---------------:|:-----------------------------------------------------|
+|    /api/book    | Details of a Book                                    |
+| /api/bookshelf  | Bookshelf information                                |
+| /api/agent_type | The type of agent. (Artist, Illustrator, etc)        |
+|   /api/person   | Details of a person (name, birth date, webpage, etc) |
+|  /api/resource  | Details of a resource (url, size, type, etc)         |
+|   /api/agent    | Agent is a unique (Person, AgentType) pair           |
+|  /api/language  | Language of the book (en, fr, etc)                   |
+|  /api/subject   | The list of genres/subjects.                         |
 
 _______________
 
@@ -97,7 +101,7 @@ _______________
 
 The endpoints can be used to **list** and to **view details** of an item.
 
-For list of items, pagination applies. For instance, to view the list of Books.
+Pagination applies for viewing the list of items. For instance, to view the list of Books.
 
 ```python
 GET /api/book/ 
@@ -115,39 +119,48 @@ GET /api/book/
 # results = Array of Book instances.
 ```
 
-Details of a particular Book.
+Provide the id to view the details of a model. This might be an integer or a string.
+
+For instance, the following GET request would return the details of a book.
 
 ```python
-GET /api/book/1000
+GET /api/book/21558/
 
 {
-    "id": 1000,
-    "format": "Text",
-    "title": "La Divina Commedia di Dante: Complete",
+    "id": 21558,
+    "type": "Text",
+    "title": "The Children of the New Forest",
     "description": null,
-    "downloads": 340,
+    "downloads": 164,
     "license": "http://www.gutenberg.org/license",
-    "subjects": [ "PQ", ...  ],
-    "bookshelves": [ "IT Poesia",
-        "Banned Books from Anne Haight's list"
+    "subjects": [
+        "Foresters -- Juvenile fiction",
+        "New Forest (England : Forest) -- Juvenile fiction",
+        "Great Britain -- History -- Civil War, 1642-1649 -- Juvenile fiction",
+        "Soldiers -- Juvenile fiction",
+        "Orphans -- Juvenile fiction",
+        "PZ"
     ],
-    "languages": [ "it" ],
+    "bookshelves": [],
+    "languages": [ "en" ],
     "agents": [
         {
-            "id": 3,
-            "person": {
-                "name": "Dante Alighieri",
-                "alias": "Alighieri, Dante",
-                "birth_date": "1265",
-                "death_date": "1321",
-                "webpage": "https://it.wikipedia.org/wiki/Dante_Alighieri"
-            },
-            "type": { "name": "Author" }
+            "id": 3570,
+            "person": "Marryat, Frederick",
+            "type": "Author"
         }
     ],
     "resources": [
-        "https://www.gutenberg.org/files/1000/1000-h/1000-h.htm",
-        ...
+        {
+            "id": 182146,
+            "uri": "https://www.gutenberg.org/files/21558/21558.zip",
+            "type": "application/zip"
+        },
+        {
+            "id": 182145,
+            "uri": "https://www.gutenberg.org/ebooks/21558.kindle.noimages",
+            "type": "application/x-mobipocket-ebook"
+        },
     ]
 }
 ```
@@ -200,7 +213,26 @@ GET /api/book/?languages=en
 }
 ```
 
-Please refer the [Browseable API][API] for a more comprehensive list of filters available at each endpoint.
+Here are some of the filters available:
+
+|   Model    | Filters                                                                                                                                                                                                                                     |
+|:----------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|   `Book`   | type, languages, title_contains, description_contains, downloads_range, has_bookshelf, has_resource_type, has_agent_type, agent_name_contains, agent_alias_contains, agent_webpage_contains, agent_birth_date_range, agent_death_date_range |
+|  `Person`  | name_contains, alias_contains, webpage_contains, birth_date_range, death_date_range                                                                                                                                                         |
+|  `Agent`   | type, name_contains, birth_date, death_date                                                                                                                                                                                                 |
+| `Resource` | size_gt, size_lt, size_range, modified_gt, modified_lt, modified_range, type                                                                                                                                                                |
+
+The suffixes have intuitive meanings:
+
+|   Suffix    | Meaning                                                                                                                               |
+|:-----------:|:--------------------------------------------------------------------------------------------------------------------------------------|
+|    `gt`     | Greater than (Number, Date, String etc)                                                                                               |
+|    `lt`     | Less than (Number, Date, String etc)                                                                                                  |
+| `contains`  | Case insensitive search on the field                                                                                                  |
+|   `range`   | Creates max and min query pairs for range based filtering. For example `size_range` will create `size_range_min` and `size_range_max` |
+| `NO SUFFIX` | Usually an exact match filter. Might have different meaning depending on the context.                                                 |
+
+Please refer to the [Browseable API][API] for a comprehensive list of filters available at each endpoint.
 
 _______________
 
@@ -233,7 +265,7 @@ Notice how `?ordering=-downloads` orders results in a descending order whereas `
 
 Please refer the [Browseable API][API] for a more comprehensive list of orderings available at each endpoint.
 
-As expected, Search, Filters and Ordering  queries can be combined.
+*As expected, Search, Filters and Ordering  queries can be combined.*
 
 _______________
 

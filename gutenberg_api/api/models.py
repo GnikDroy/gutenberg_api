@@ -45,7 +45,8 @@ class Agent(models.Model):
 
 
 class Bookshelf(models.Model):
-    name = models.CharField(max_length=MAX_UNKNOWN_LENGTH, primary_key=True)
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
 
     class Meta:
         ordering = ('-pk',)
@@ -65,7 +66,8 @@ class Language(models.Model):
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=MAX_UNKNOWN_LENGTH, primary_key=True)
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=MAX_UNKNOWN_LENGTH)
 
     class Meta:
         ordering = ('-pk',)
@@ -75,7 +77,8 @@ class Subject(models.Model):
 
 
 class Resource(models.Model):
-    uri = models.URLField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
+    uri = models.URLField()
     size = models.IntegerField(null=True)
     modified = models.DateTimeField(null=True)
     type = models.CharField(max_length=500, null=True)

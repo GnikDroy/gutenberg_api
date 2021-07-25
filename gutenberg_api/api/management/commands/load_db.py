@@ -22,10 +22,7 @@ from api import models
 def clear_db() -> None:
     """Clears all catalogue related information present in the database.
 
-    NOTE: This does not remove images from the media/ directory.
-
-    Returns:
-        None
+    :param returns: None
     """
     models.Person.objects.all().delete()
     models.AgentType.objects.all().delete()
@@ -38,20 +35,17 @@ def clear_db() -> None:
 
 
 def import_catalogue(logger, fixture_file_path: str, clear: bool) -> None:
-    """Imports the catalogue from fixtures.
+    """ Imports the catalogue from fixtures.
 
     Imports all database information from the fixture path.
-    This function can clear all database information.
+    NOTE: This function can clear all database information.
 
-    Args:
-        logger: The logger used to log messages.
-        fixture_file_path: the path to the fixture file.
-        clear (bool): Whether to clear the database before import.
+    :param logger: The logger used to log messages.
+    :param fixture_file_path: The path to the fixture file.
+    :param clear: Whether to clear the database before import.
 
-    Returns:
-        None
+    :returns: None
     """
-    # Clear catalogue if instructed
     if clear:
         clear_db()
         logger.info("Cleared database")
@@ -110,38 +104,38 @@ def import_catalogue(logger, fixture_file_path: str, clear: bool) -> None:
 
     logger.info("Populating Bookshelf")
     cur.execute("""
-    SELECT name FROM Bookshelf
+    SELECT id, name FROM Bookshelf
     """)
     bookshelves = cur.fetchall()
     bookshelf_objs = []
-    for name, in bookshelves:
-        bookshelf_objs.append(models.Bookshelf(name=name))
+    for id, name in bookshelves:
+        bookshelf_objs.append(models.Bookshelf(pk=id, name=name))
     models.Bookshelf.objects.bulk_create(bookshelf_objs)
     bookshelf_objs.clear()
 
     logger.info("Populating Subject")
     cur.execute("""
-    SELECT name FROM Subject
+    SELECT id, name FROM Subject
     """)
     subjects = cur.fetchall()
     subject_objs = []
-    for name, in subjects:
-        subject_objs.append(models.Subject(name=name))
+    for id, name in subjects:
+        subject_objs.append(models.Subject(pk=id, name=name))
     models.Subject.objects.bulk_create(subject_objs)
     subject_objs.clear()
 
     logger.info("Populating Resource")
     cur.execute("""
-    SELECT url, size, modified, type FROM Resource
+    SELECT id, url, size, modified, type FROM Resource
     """)
     resources = cur.fetchall()
     resource_objs = []
-    for url, size, modified_str, type in resources:
+    for id, url, size, modified_str, type in resources:
         modified_str = modified_str.split(".")[0]
         modified = datetime.strptime(
             modified_str, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=pytz.UTC)
         resource_objs.append(models.Resource(
-            uri=url, size=size, modified=modified, type=type))
+            pk=id, uri=url, size=size, modified=modified, type=type))
     models.Resource.objects.bulk_create(resource_objs)
     resource_objs.clear()
 
@@ -232,11 +226,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser) -> None:
         """Add arguments to load_db
 
-        Args:
-            parser: django command line parser
-
-        Returns:
-            None
+        :param parser: django command line parser
+        :returns: None
         """
         parser.add_argument('path', help='/path/to/fixture.sqlite3')
 

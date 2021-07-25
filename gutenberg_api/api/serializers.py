@@ -32,22 +32,37 @@ class BookshelfSerializer(serializers.ModelSerializer):
 class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Language
-        fields = ('name',)
+        fields = '__all__'
 
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Subject
-        fields = ('name',)
+        fields = '__all__'
 
 
 class ResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Resource
-        fields = ('uri', 'type', 'size', 'modified')
+        fields = ('id', 'uri', 'type', 'size', 'modified')
+
 
 class BookSerializer(serializers.ModelSerializer):
-    agents = AgentSerializer(many=True)
+    subjects = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
+    bookshelves = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
+
+    class BookAgentSerializer(serializers.Serializer):
+        id = serializers.IntegerField()
+        person = serializers.SlugRelatedField(read_only=True, slug_field="name")
+        type = serializers.SlugRelatedField(read_only=True, slug_field="name")
+    agents = BookAgentSerializer(many=True)
+
+    class BookResourceSerializer(serializers.Serializer):
+        id = serializers.IntegerField()
+        uri = serializers.URLField()
+        type = serializers.CharField()
+    resources = BookResourceSerializer(many=True)
+
     class Meta:
         model = models.Book
         fields = ('id', 'type', 'title', 'description', 'downloads', 'license', 'subjects',
