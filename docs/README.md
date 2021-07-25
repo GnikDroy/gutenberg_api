@@ -392,5 +392,5 @@ _______________
 You can find the license at [Github][Github]. Please refer to [Project Gutenberg's policy](https://www.gutenberg.org/policy/license.html) on the use of resources made available to you.
 
 [Github]: https://www.github.com/GnikDroy/gutenberg_api
-[Site]: https://www.example.com
-[API]: https://www.example.com/api
+[Site]: https://gnikdroy.pythonanywhere.com
+[API]: https://gnikdroy.pythonanywhere.com/api
