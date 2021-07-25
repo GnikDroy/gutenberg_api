@@ -45,6 +45,6 @@ def docs(request):
     The Documentation Page
     """
     template = loader.get_template('main/markdown.html')
-    markdown_path = os.path.join(settings.BASE_DIR, "DOCS.md")
+    markdown_path = os.path.join(settings.BASE_DIR, "docs/README.md")
     lazy_load_markdown(markdown_path)
     return HttpResponse(template.render({"markdown_html": MARKDOWN_FILES[markdown_path]}, request))
