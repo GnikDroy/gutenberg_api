@@ -48,19 +48,32 @@ python3 manage.py load_db [--clear] path/to/generated_sqlite.db
 # For more info: python3 manage.py load_db -h
 ```
 
-You should be all set up and ready to roll!
+## Deployment
+
+Setup your environment,
 
 ```sh
-python3 manage.py runserver 8080
+cp .env.template .env
 ```
 
-*I am unable to test installation steps for every single environment. If you have had to do perform some additional steps to reach this stage, please create a PR.*
+You should populate `.env` with your production settings (SECRET_KEYS, ALLOWED_HOSTS, etc). If you are not in production, the default settings will set you up for development. You do not need to do anything.
+
+Additionally, if you are in production you might have to setup some stuff in `wsgi.py` or `asgi.py`. Please refer to the [django docs](https://docs.djangoproject.com/en/dev/howto/deployment/) for more details.
+
+After setting everything up, you should be ready to roll!
+
+```sh
+python3 manage.py runserver <PORT>
+```
+
+
+*I am unable to test installation steps for every single environment. If you have had to perform some additional steps to reach this stage, and would like to inform others, please create a PR.*
 
 _______________
 
 ## Details
 
-*This section is NOT for you if you only want to quickly setup and deploy the website.*
+*This section is NOT for you if you only want to quickly setup and deploy the app.*
 
 ### Generated SQLite Database
 
@@ -378,6 +391,6 @@ _______________
 
 You can find the license at [Github][Github]. Please refer to [Project Gutenberg's policy](https://www.gutenberg.org/policy/license.html) on the use of resources made available to you.
 
-[Github]: https://www.github.com/ProjectLink
-[Site]: https://www.hostedsite.com
-[API]: https://www.hostedsite.com/api
+[Github]: https://www.github.com/GnikDroy/gutenberg_api
+[Site]: https://www.example.com
+[API]: https://www.example.com/api

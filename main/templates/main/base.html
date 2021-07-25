@@ -23,17 +23,22 @@
 <body>
 
     <header>
-        <div class="form-check form-switch d-block float-end py-2 px-5">
-            <input class="form-check-input" type="checkbox" id="light_dark_checkbox" checked>
-            <label class="form-check-label" for="light_dark_switch"> Light / Dark </label>
+        <div class="d-block float-end py-2 px-5">
+            <i class="fas fa-sun d-inline-block align-middle px-2" style="font-size:1.2em; color:#dfd33b;"></i>
+            <div class="form-check form-switch d-inline-block align-middle">
+                <input class="form-check-input align-middle" type="checkbox" id="light_dark_checkbox" checked>
+            </div>
+            <i class="fas fa-moon d-inline align-middle" style="font-size:1.2em"></i>
         </div>
 
-        <a class="nav-link" href="{% url 'main:index' %}" style="color: inherit;">
-            <div class="container-fluid text-center">
-                <h1 class="display-1 mx-auto py-5"><i class="fas fa-book-open"></i> Project Gutenberg API</h1>
-                <p class="mx-auto lead"> A RESTful API to access the entire Project Gutenberg catalogue. </p>
-            </div>
-        </a>
+        <div class="container-fluid text-center">
+            <h1 class="display-1 mx-auto py-5">
+                <a class="text-decoration-none" href="{% url 'main:index' %}" style="color: inherit;">
+                    <i class="fas fa-book-open"></i> Project Gutenberg API
+                </a>
+            </h1>
+            <p class="mx-auto lead"> A RESTful API to access the entire Project Gutenberg catalogue. </p>
+        </div>
     </header>
 
     <main>

@@ -8,9 +8,16 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/
 """
 
 import os
+import dotenv
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gutenberg_api.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gutenberg_api.development')
+
+dotenv.load_dotenv(os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), '.env'))
+
+if os.getenv('DJANGO_SETTINGS_MODULE'):
+    os.environ['DJANGO_SETTINGS_MODULE'] = os.getenv('DJANGO_SETTINGS_MODULE')
 
 application = get_wsgi_application()
