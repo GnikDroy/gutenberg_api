@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  django:
+    build: .
+    ports:
+      - "80:8000"
+    volumes:
+      - .:/app
