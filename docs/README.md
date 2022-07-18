@@ -1,18 +1,57 @@
-# Installation and Setup
+# Project Gutenberg API
 
-An instance should be running [here][Site]. Please host your own instance if you are planning on using the API extensively.
+<img src="https://i.ibb.co/tDWjdtD/46271.png" alt="logo" border="0">
 
-To host your own, firstly **clone the repository.**
+
+A RESTful API to access the entire Project Gutenberg catalogue 
+
+
+![Website](https://img.shields.io/website?down_color=red&down_message=offline&up_message=online&url=https%3A%2F%2Fgnikdroy.pythonanywhere.com)
+![release_id](https://img.shields.io/github/v/release/gnikdroy/gutenberg_api?display_name=tag)
+![license](https://img.shields.io/github/license/gnikdroy/gutenberg_api)
+
+
+# Try it out
+
+An instance should be running [here][Site].
+Please host your own instance if you are planning on using the API extensively.
+
+# Deploy Locally with Docker
+
+
+Just a single command and you are ready to go
+```
+docker compose up
+```
+The application is listening at `localhost:80`
+
+**On a production machine make sure to setup .env file, among other things.**
+**Refer to .env.template for more information.**
+
+# Deploy Manually
+## Generating the SQLite DB
+
+**Skip this section if you are using the database from the releases page.**
+
+First **clone the [repository](https://github.com/GnikDroy/gutenberg_api).**
 
 ```sh
-git clone <repository>
+git clone https://github.com/GnikDroy/gutenberg_api
 ```
 
-You will need to generate the SQLite Database from the Project Gutenberg catalogue. The catalogue is updated daily and is not present in the repository.
+You will need to generate the SQLite Database from the Project Gutenberg catalogue.
+The catalogue is updated daily and is not present in the repository.
 
-**Get a copy of the Project Gutenberg catalog** [here](https://www.gutenberg.org/cache/epub/feeds/). We use the [format](https://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.zip) where each book gets its own RDF file. The current implementation of RDF in python has poor performance so parsing the single file catalogue is not feasible.
+**Get a copy of the Project Gutenberg catalog** [here](https://www.gutenberg.org/cache/epub/feeds/).
+We use the [format](https://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.zip)
+where each book gets its own RDF file. The current implementation of RDF in python has poor performance
+so parsing the single file catalogue is not feasible.
 
-Once you have the catalogue, you can use `scripts/rdf_parser.py` or `scripts/books_db.py` to **generate the JSON catalogue or an SQLite database**. Since RDFLib has poor performance, it is often worthwhile to convert the RDF files to JSON with `rdf_parser.py`, and use `books_db.py` to finally generate the SQLite database. If you do not need to do this regularly, `books_db.py` will also directly create an SQLite database from the RDF files.
+Once you have the catalogue,
+you can use `scripts/rdf_parser.py` or `scripts/books_db.py` to **generate the JSON catalogue or an SQLite database**.
+Since RDFLib has poor performance, it is often worthwhile to convert the RDF files to JSON with `rdf_parser.py`,
+and use `books_db.py` to finally generate the SQLite database.
+If you do not need to do this regularly, `books_db.py` will also directly create an SQLite database from the RDF files.
 
 ```sh
 pip install -r scripts/requirements.txt
@@ -20,27 +59,25 @@ pip install -r scripts/requirements.txt
 [python] books_db.py -h
 ```
 
- You should be able to generate a SQLite database after reading the help messages. Additionally, you have the ability to generate JSON files if need be.
+ You should be able to generate a SQLite database after reading the help messages.
+ Additionally, you have the ability to generate JSON files if need be.
 
 *This will take some time!* Get yourself a cup of coffee.
 
-After generating a SQLite database, you will need to **load this into Django**. There is a custom `load_db` command inside `api` app for this.
+After generating a SQLite database, you will need to **load this into Django**.
+There is a custom `load_db` command inside `api` app for this.
 
-Before that, let's setup the django project. From your project root:
+Before that, let's setup the django project.
+
+## Setting up django
+From the project root
 
 ```sh
 pip install -r requirements.txt
-
-python3 manage.py makemigrations
 python3 manage.py migrate
-
-python3 manage.py makemigrations api
-python3 manage.py migrate
-
-# python3 manage.py createsuperuser # Create a super user account. This might be unnecessary for your needs.
 ```
 
-Finally, let's load the generated SQLite DB
+Finally, let's load the generated/downloaded SQLite DB
 
 ```sh
 python3 manage.py load_db [--clear] path/to/generated_sqlite.db
@@ -48,7 +85,7 @@ python3 manage.py load_db [--clear] path/to/generated_sqlite.db
 # For more info: python3 manage.py load_db -h
 ```
 
-## Deployment
+## Starting an instance of the app
 
 Setup your environment,
 
@@ -56,9 +93,11 @@ Setup your environment,
 cp .env.template .env
 ```
 
-You should populate `.env` with your production settings (SECRET_KEYS, ALLOWED_HOSTS, etc). If you are not in production, the default settings will set you up for development. You do not need to do anything.
+You should populate `.env` with your production settings (SECRET_KEYS, ALLOWED_HOSTS, etc).
+If you are not in production, the default settings will set you up for development. You do not need to do anything.
 
-Additionally, if you are in production you might have to setup some stuff in `wsgi.py` or `asgi.py`. Please refer to the [django docs](https://docs.djangoproject.com/en/dev/howto/deployment/) for more details.
+Additionally, if you are in production you might have to setup some stuff in `wsgi.py` or `asgi.py`.
+Please refer to the [django docs](https://docs.djangoproject.com/en/dev/howto/deployment/) for more details.
 
 After setting everything up, you should be ready to roll!
 
@@ -67,21 +106,28 @@ python3 manage.py runserver <PORT>
 ```
 
 
-*I am unable to test installation steps for every single environment. If you have had to perform some additional steps to reach this stage, and would like to inform others, please create a PR.*
+*I am unable to test installation steps for every single environment.*
+*If you have had to perform some additional steps to reach this stage,*
+*and would like to inform others, please create a PR.*
 
 _______________
 
-## Details
+## Database Details
 
-*This section is NOT for you if you only want to quickly setup and deploy the app.*
+*This section is NOT for you if you want to quickly setup and deploy the app.*
 
 ### Generated SQLite Database
 
-The generated SQLite database can be used differently.  You should be able to see the tables from some sort of a DB management software. Please refer to `scripts/books_db.py` for more details on the format.
+The generated SQLite database can be used differently.
+You should be able to see the tables from some sort of a DB management software.
+Please refer to `scripts/books_db.py` for more details on the schema.
 
 ### Mirroring the site
 
-If you are aiming to make a lot of requests to the `Resource` obtained from the API, it might be worthwhile to [mirror Project Gutenberg.](https://www.gutenberg.org/help/mirroring.html). You would then need to update the Resource URIs generated from the RDF files to point to your domain. Refer to `books_db.py` and `rdf_parser.py`. A small SQLite command will also do the job.
+If you are aiming to make a lot of requests to the `Resource` obtained from the API,
+it might be worthwhile to [mirror Project Gutenberg.](https://www.gutenberg.org/help/mirroring.html).
+You would then need to update the Resource URIs generated from the RDF files to point to your domain.
+Refer to `books_db.py` and `rdf_parser.py`. A small SQLite command will also do the job.
 
 _______________
 
@@ -270,7 +316,9 @@ GET /api/book/?ordering=-downloads
 }
 ```
 
-Notice how `?ordering=-downloads` orders results in a descending order whereas `?ordering=downloads` in an ascending order. You can also order them by multiple fields. For instance, `?ordering=-downloads,title` will work as well.
+Notice how `?ordering=-downloads` orders results in a descending order whereas
+`?ordering=downloads` in an ascending order. You can also order them by multiple fields.
+For instance, `?ordering=-downloads,title` will work as well.
 
 Please refer the [Browseable API][API] for a more comprehensive list of orderings available at each endpoint.
 
@@ -378,7 +426,11 @@ _______________
 
 # About
 
-The Gutenberg API is one of the largest source of free ebooks, and the catalogue provides a lot of metadata. The existing projects did not fully expose all the information provided in the metadata (this project aims to provide most of the relevant ones). Additionally, we also provide a mechanism to parse the RDF files into JSON or an SQLite database for easier analysis, as well as a comprehensive browsable API view.
+The Gutenberg API is one of the largest source of free ebooks, and the catalogue provides a lot of metadata.
+The existing projects did not fully expose all the information provided in the metadata
+(this project aims to provide most of the relevant ones).
+Additionally, we also provide a mechanism to parse the RDF files into JSON or an SQLite database for easier analysis,
+as well as a comprehensive browsable API view.
 
 ## Similar Projects
 
@@ -389,7 +441,9 @@ _______________
 
 # License
 
-You can find the license at [Github][Github]. Please refer to [Project Gutenberg's policy](https://www.gutenberg.org/policy/license.html) on the use of resources made available to you.
+You can find the license at [Github][Github].
+Please refer to [Project Gutenberg's policy](https://www.gutenberg.org/policy/license.html)
+on the use of resources made available to you.
 
 [Github]: https://www.github.com/GnikDroy/gutenberg_api
 [Site]: https://gnikdroy.pythonanywhere.com
