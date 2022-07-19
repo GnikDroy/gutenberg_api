@@ -1,6 +1,6 @@
 # Project Gutenberg API
 
-<img src="https://i.ibb.co/tDWjdtD/46271.png" alt="logo" border="0">
+<img src="https://i.ibb.co/M1dWcdP/46271.png" alt="logo" border="0">
 
 
 A RESTful API to access the entire Project Gutenberg catalogue 
