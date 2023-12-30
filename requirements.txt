@@ -1,7 +1,7 @@
-Django==3.2.20
+Django==3.2.23
 django-filter==2.4.0
 djangorestframework==3.12.4
-Markdown==3.3.4
+Markdown==3.5.1
 Pygments==2.15.0
 pytz==2021.1
 python-dotenv==0.19.0
