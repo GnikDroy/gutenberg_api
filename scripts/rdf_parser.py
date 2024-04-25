@@ -131,12 +131,15 @@ def main(args):
     for path, _, filenames in os.walk(args.input):
         for filename in filenames:
             if filename.endswith(".rdf"):
-                id = int(os.path.basename(path))
-                input_file = os.path.join(path, filename)
-                output_file = os.path.join(args.output, f"{id}.json")
-                Book.convert_to_json(id, input_file, output_file)
-                print(f"Converted book: {id}")
-
+                try:
+                    id = int(os.path.basename(path))
+                    input_file = os.path.join(path, filename)
+                    output_file = os.path.join(args.output, f"{id}.json")
+                    Book.convert_to_json(id, input_file, output_file)
+                    print(f"Converted book: {id}")
+                except ValueError:
+                    print(f"Error: Cannot convert file named '{os.path.basename(path)}' to integer")
+                    continue
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
