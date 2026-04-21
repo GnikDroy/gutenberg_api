@@ -4,4 +4,4 @@ djangorestframework==3.15.2
 Markdown==3.8.1
 Pygments==2.15.0
 pytz==2021.1
-python-dotenv==0.19.0
+python-dotenv==1.2.2
